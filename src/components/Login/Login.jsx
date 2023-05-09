@@ -1,5 +1,10 @@
 import './Login.scss';
+import { useNavigate } from 'react-router-dom';
 const Login = () => {
+    let history = useNavigate();
+    const goToRegister = () => {
+        history('/register');
+    };
     return (
         <section className='vh-100'>
             <div className='container-fluid h-custom'>
@@ -104,7 +109,11 @@ const Login = () => {
                                 </button>
                                 <p className='small fw-bold mt-2 pt-1 mb-0'>
                                     {`Don't have an account?`}
-                                    <a href='#!' className='link-danger'>
+                                    <a
+                                        href='#!'
+                                        className='link-danger'
+                                        onClick={goToRegister}
+                                    >
                                         Register
                                     </a>
                                 </p>

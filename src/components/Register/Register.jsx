@@ -1,6 +1,65 @@
+import { useState } from 'react';
 import './/Register.scss';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export default function Register() {
+    let history = useNavigate();
+    const [dataForm, setDataForm] = useState({
+        email: '',
+        phone: '',
+        userName: '',
+        password: '',
+        confirmPassword: '',
+    });
+    const defaultValidForm = {
+        validFormEmail: true,
+        validFormPassword: true,
+        validFormConfirmPassword: true,
+    };
+    const [validForm, setValidForm] = useState(defaultValidForm);
+    const handleOnchange = (e) => {
+        const { name, value } = e.target;
+        setDataForm({ ...dataForm, [name]: value });
+    };
+    const isValidForm = () => {
+        if (!dataForm.email) {
+            toast.error('Email is required');
+            setValidForm({ ...validForm, validFormEmail: false });
+        }
+        if (!dataForm.password) {
+            toast.error('Password is required');
+            setValidForm({ ...validForm, validFormPassword: false });
+        }
+        if (!dataForm.confirmPassword) {
+            toast.error('ConfirmPassword is required');
+            setValidForm({ ...validForm, validFormConfirmPassword: false });
+        }
+        const regexEmail = /\S+@\S+\.\S+/;
+        if (!regexEmail.test(dataForm.email)) {
+            setValidForm({ ...validForm, validFormEmail: false });
+            toast.error('Please enter a vaild email address');
+        }
+    };
+    const submitForm = () => {
+        isValidForm();
+        axios
+            .post('http://localhost:3000/api/v1/register', {
+                ...dataForm,
+            })
+            .then(function (response) {
+                console.log('response:', response);
+            })
+            .catch(function (error) {
+                console.log('error:', error);
+            });
+    };
+    console.log('dataForm', dataForm);
+    const goToLogin = () => {
+        history('/login');
+    };
+    console.log('validForm', validForm);
     return (
         <section className='text-center text-lg-start'>
             {/* Jumbotron */}
@@ -18,11 +77,16 @@ export default function Register() {
                                 <h2 className='fw-bold mb-5'>Sign up now</h2>
                                 <form>
                                     {/* Email input */}
-                                    <div className='form-outline mb-4'>
+                                    <div className='form-outline mb-4 '>
                                         <input
+                                            onChange={handleOnchange}
+                                            name='email'
                                             type='email'
                                             id='form3Example3'
-                                            className='form-control'
+                                            className={`${
+                                                validForm.validFormEmail ||
+                                                'is-invalid'
+                                            } form-control`}
                                         />
                                         <label
                                             className='form-label'
@@ -34,9 +98,14 @@ export default function Register() {
                                     {/* Password input */}
                                     <div className='form-outline mb-4'>
                                         <input
+                                            onChange={handleOnchange}
+                                            name='password'
                                             type='password'
                                             id='form3Example4'
-                                            className='form-control'
+                                            className={`${
+                                                validForm.validFormPassword ||
+                                                'is-invalid'
+                                            } form-control`}
                                         />
                                         <label
                                             className='form-label'
@@ -49,9 +118,14 @@ export default function Register() {
                                     {/*Confirm Password input */}
                                     <div className='form-outline mb-4'>
                                         <input
-                                            type='confirmPassword'
+                                            onChange={handleOnchange}
+                                            name='confirmPassword'
+                                            type='password'
                                             id='form3Example4'
-                                            className='form-control'
+                                            className={`${
+                                                validForm.validFormConfirmPassword ||
+                                                'is-invalid'
+                                            } form-control`}
                                         />
                                         <label
                                             className='form-label'
@@ -65,6 +139,8 @@ export default function Register() {
                                         <div className='col-md-6 mb-4'>
                                             <div className='form-outline'>
                                                 <input
+                                                    onChange={handleOnchange}
+                                                    name='userName'
                                                     type='text'
                                                     id='form3Example1'
                                                     className='form-control'
@@ -80,7 +156,9 @@ export default function Register() {
                                         <div className='col-md-6 mb-4'>
                                             <div className='form-outline'>
                                                 <input
-                                                    type='number'
+                                                    onChange={handleOnchange}
+                                                    name='phone'
+                                                    type='text'
                                                     id='form3Example2'
                                                     className='form-control'
                                                 />
@@ -112,11 +190,22 @@ export default function Register() {
                                     </div>
                                     {/* Submit button */}
                                     <button
-                                        type='submit'
+                                        type='button'
                                         className='btn btn-primary btn-block mb-4'
+                                        onClick={submitForm}
                                     >
                                         Sign up
                                     </button>
+                                    <p className='small fw-bold mt-2 pt-1 mb-0'>
+                                        {`Back to login page`}
+                                        <a
+                                            href='#!'
+                                            className='link-danger'
+                                            onClick={goToLogin}
+                                        >
+                                            Login
+                                        </a>
+                                    </p>
                                     {/* Register buttons */}
                                     <div className='text-center'>
                                         <p>or sign up with:</p>
