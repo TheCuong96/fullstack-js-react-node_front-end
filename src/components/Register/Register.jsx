@@ -9,7 +9,7 @@ export default function Register() {
     const [dataForm, setDataForm] = useState({
         email: '',
         phone: '',
-        userName: '',
+        username: '',
         password: '',
         confirmPassword: '',
     });
@@ -140,7 +140,7 @@ export default function Register() {
                                             <div className='form-outline'>
                                                 <input
                                                     onChange={handleOnchange}
-                                                    name='userName'
+                                                    name='username'
                                                     type='text'
                                                     id='form3Example1'
                                                     className='form-control'
