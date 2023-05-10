@@ -5,12 +5,22 @@ import 'react-toastify/dist/ReactToastify.css';
 import Login from './components/Login/Login';
 import Navigation from './components/Navigation/Navigation';
 import Register from './components/Register/Register';
-
+import User from './components/User/User';
+import AuthenticatedGuards from './guards/AuthenticatedGuards';
 function App() {
     return (
         <>
             <Navigation />
             <Routes>
+                <Route
+                    path='/user'
+                    element={
+                        <AuthenticatedGuards>
+                            <User />
+                        </AuthenticatedGuards>
+                    }
+                />
+
                 <Route path='/news' element={'news'} />
                 <Route path='/about' element={'about'} />
                 <Route path='/contact' element={'Contact'} />

@@ -1,7 +1,49 @@
+import { useState } from 'react';
 import './Login.scss';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import userApi from '../../services/userService';
 const Login = () => {
+    const [valueAccount, setValueAccount] = useState({
+        emailOrPhone: '',
+        password: '',
+    });
     let history = useNavigate();
+    const handleOnchange = (e) => {
+        const { name, value } = e.target;
+        setValueAccount({ ...valueAccount, [name]: value });
+    };
+    const defaultValidForm = {
+        validAccountEmailOrPhone: true,
+        validAccountPassword: true,
+    };
+    const [validAccount, setValidAccount] = useState(defaultValidForm);
+    const submitLogin = async () => {
+        setValidAccount(defaultValidForm);
+        if (!valueAccount.emailOrPhone) {
+            toast.error('Please enter your email address or phone number');
+            setValidAccount({
+                ...validAccount,
+                validAccountEmailOrPhone: false,
+            });
+            return;
+        }
+        if (!valueAccount.password) {
+            toast.error('Please enter your Password');
+            setValidAccount({ ...validAccount, validAccountPassword: false });
+            return;
+        }
+        console.log('valueAccount', valueAccount);
+        let response = await userApi.loginUser(valueAccount);
+        if (response && response.data && +response.data.EC === 0) {
+            const data = { isAuthenticated: true, token: 'fake token' };
+            sessionStorage.setItem('account', JSON.stringify(data));
+            history('/user');
+        }
+        if (response && response.data && +response.data.EC !== 0) {
+            toast.error(response.data.EM);
+        }
+    };
     const goToRegister = () => {
         history('/register');
     };
@@ -51,14 +93,20 @@ const Login = () => {
                                 <input
                                     type='email'
                                     id='form3Example3'
-                                    className='form-control form-control-lg'
-                                    placeholder='Enter a valid email address'
+                                    placeholder='Enter a valid email address or phone'
+                                    name='emailOrPhone'
+                                    onChange={handleOnchange}
+                                    value={valueAccount.emailOrPhone}
+                                    className={`${
+                                        validAccount.validAccountEmailOrPhone ||
+                                        'is-invalid'
+                                    } form-control form-control-lg`}
                                 />
                                 <label
                                     className='form-label'
                                     htmlFor='form3Example3'
                                 >
-                                    Email address
+                                    Email or phone
                                 </label>
                             </div>
                             {/* Password input */}
@@ -66,8 +114,14 @@ const Login = () => {
                                 <input
                                     type='password'
                                     id='form3Example4'
-                                    className='form-control form-control-lg'
                                     placeholder='Enter password'
+                                    name='password'
+                                    onChange={handleOnchange}
+                                    value={valueAccount.password}
+                                    className={`${
+                                        validAccount.validAccountPassword ||
+                                        'is-invalid'
+                                    } form-control form-control-lg`}
                                 />
                                 <label
                                     className='form-label'
@@ -104,6 +158,7 @@ const Login = () => {
                                         paddingLeft: '2.5rem',
                                         paddingRight: '2.5rem',
                                     }}
+                                    onClick={submitLogin}
                                 >
                                     Login
                                 </button>
