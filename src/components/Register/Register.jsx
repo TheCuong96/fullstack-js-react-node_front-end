@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './/Register.scss';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import userApi from '../../services/userService';
 
 export default function Register() {
     let history = useNavigate();
@@ -42,24 +42,21 @@ export default function Register() {
             toast.error('Please enter a vaild email address');
         }
     };
-    const submitForm = () => {
+    const submitForm = async () => {
         isValidForm();
-        axios
-            .post('http://localhost:3000/api/v1/register', {
-                ...dataForm,
-            })
-            .then(function (response) {
-                console.log('response:', response);
-            })
-            .catch(function (error) {
-                console.log('error:', error);
-            });
+        let responseData = await userApi.registerUser(dataForm);
+        if (+responseData.data.EC === 0) {
+            toast.success(responseData.data.EM);
+            console.log('responseData', responseData);
+            history('/login');
+        } else {
+            console.log('responseData-111', responseData);
+            toast.error(responseData.data.EM);
+        }
     };
-    console.log('dataForm', dataForm);
     const goToLogin = () => {
         history('/login');
     };
-    console.log('validForm', validForm);
     return (
         <section className='text-center text-lg-start'>
             {/* Jumbotron */}
