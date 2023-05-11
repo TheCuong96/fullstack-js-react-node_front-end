@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './/Register.scss';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -6,6 +6,12 @@ import userApi from '../../services/userService';
 
 export default function Register() {
     let history = useNavigate();
+    useEffect(() => {
+        let account = JSON.parse(sessionStorage.getItem('account'));
+        if (account) {
+            history('/');
+        }
+    }, []);
     const [dataForm, setDataForm] = useState({
         email: '',
         phone: '',

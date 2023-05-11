@@ -1,14 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Login.scss';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import userApi from '../../services/userService';
 const Login = () => {
+    let history = useNavigate();
+
+    useEffect(() => {
+        let account = JSON.parse(sessionStorage.getItem('account'));
+        if (account) {
+            history('/');
+        }
+    }, []);
+
     const [valueAccount, setValueAccount] = useState({
         emailOrPhone: '',
         password: '',
     });
-    let history = useNavigate();
     const handleOnchange = (e) => {
         const { name, value } = e.target;
         setValueAccount({ ...valueAccount, [name]: value });
@@ -33,7 +41,6 @@ const Login = () => {
             setValidAccount({ ...validAccount, validAccountPassword: false });
             return;
         }
-        console.log('valueAccount', valueAccount);
         let response = await userApi.loginUser(valueAccount);
         if (response && response.data && +response.data.EC === 0) {
             const data = { isAuthenticated: true, token: 'fake token' };
