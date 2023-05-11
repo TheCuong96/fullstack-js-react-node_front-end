@@ -3,6 +3,7 @@ import userApi from '../../services/userService';
 import ReactPaginate from 'react-paginate';
 import { toast } from 'react-toastify';
 import ModalDelete from '../ModalDelete/ModalDelete';
+import ModalUser from '../ModalUser/ModalUser';
 export default function User() {
     const [listUsers, setListUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -10,12 +11,15 @@ export default function User() {
     const [totalPages, setTotalPages] = useState(0);
     const [isShowModalDelete, setIsShowModalDelete] = useState(false);
     const [dataModal, setDataModal] = useState({});
+    const [showModalUser, setShowModalUser] = useState(false);
+
     useEffect(() => {
         fetchUser();
     }, [currentPage]);
     const fetchUser = async () => {
+        console.log('currentPage', currentPage);
+        console.log('currentLitmit', currentLitmit);
         let response = await userApi.fetchAllUser(currentPage, currentLitmit);
-        console.log('response', response);
         if (response && response.data && +response.data.EC === 0) {
             setTotalPages(response.data.DT.totalPages);
             setListUsers(response.data.DT.user);
@@ -36,7 +40,6 @@ export default function User() {
     };
     const confirmDeleteUser = async () => {
         let response = await userApi.deleteUser(dataModal);
-        console.log('response', response);
         console.log('redataModalsponse', dataModal);
         if (response && +response.data.EC === 0) {
             toast.success(response.data.EM);
@@ -46,10 +49,15 @@ export default function User() {
             toast.error(response.data.EM);
         }
     };
+    const onHideModalUser = () => {
+        setShowModalUser(false);
+    };
+    console.log('listUsers', listUsers);
     return (
         <div>
             <div className='container'>
                 <h1>List user</h1>
+                <button onClick={() => setShowModalUser(true)}>add user</button>
                 <div className='panel panel-success border border-bottom-0 mt-5'>
                     <table className='table table-hover'>
                         <thead>
@@ -88,53 +96,49 @@ export default function User() {
                             </tr>
                         </thead>
                         <tbody>
-                            {listUsers.map((item, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td className='text-center'>
-                                            {item.id}
-                                        </td>
-                                        <td>{item.email}</td>
-                                        <td className='text-center'>
-                                            <span className='label label-danger'>
-                                                {item.phone}
-                                            </span>
-                                        </td>
-                                        <td className='text-center'>
-                                            <span className='label label-danger'>
-                                                {item.username}
-                                            </span>
-                                        </td>
-                                        <td className='text-center'>
-                                            <span className='label label-danger'>
-                                                {item.Group}
-                                            </span>
-                                        </td>
-                                        <td className='d-flex align-items-center justify-content-evenly'>
-                                            <form
-                                                action='/edit-user/<%= item.id %>'
-                                                method='GET'
-                                            >
+                            {listUsers &&
+                                listUsers.map((item, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td className='text-center'>
+                                                {item.id}
+                                            </td>
+                                            <td>{item.email}</td>
+                                            <td className='text-center'>
+                                                <span className='label label-danger'>
+                                                    {item.phone}
+                                                </span>
+                                            </td>
+                                            <td className='text-center'>
+                                                <span className='label label-danger'>
+                                                    {item.username}
+                                                </span>
+                                            </td>
+                                            <td className='text-center'>
+                                                <span className='label label-danger'>
+                                                    {item?.Group?.name}
+                                                </span>
+                                            </td>
+                                            <td className='d-flex align-items-center justify-content-evenly'>
                                                 <button
                                                     type='submit'
                                                     className='btn btn-warning btn-sm'
                                                 >
                                                     Edit
                                                 </button>
-                                            </form>
 
-                                            <button
-                                                className='btn btn-danger btn-sm'
-                                                onClick={() =>
-                                                    handleDeleteUser(item)
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                                <button
+                                                    className='btn btn-danger btn-sm'
+                                                    onClick={() =>
+                                                        handleDeleteUser(item)
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                         </tbody>
                     </table>
                 </div>
@@ -171,6 +175,7 @@ export default function User() {
                 confirmDeleteUser={confirmDeleteUser}
                 dataModal={dataModal}
             />
+            <ModalUser onHide={onHideModalUser} show={showModalUser} />
         </div>
     );
 }
