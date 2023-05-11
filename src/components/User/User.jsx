@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react';
 import userApi from '../../services/userService';
-
+import ReactPaginate from 'react-paginate';
 export default function User() {
     const [listUsers, setListUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentLitmit, setCurrentLitmit] = useState(3);
+    const [totalPages, setTotalPages] = useState(0);
     useEffect(() => {
         fetchUser();
-    }, []);
+    }, [currentPage]);
     const fetchUser = async () => {
-        let response = await userApi.fetchAllUser();
+        let response = await userApi.fetchAllUser(currentPage, currentLitmit);
         console.log('response', response);
         if (response && response.data && +response.data.EC === 0) {
-            setListUsers(response.data.DT);
+            setTotalPages(response.data.DT.totalPages);
+            setListUsers(response.data.DT.user);
         }
     };
+
+    const handlePageClick = async (event) => {
+        setCurrentPage(+event.selected + 1);
+    };
+
     return (
         <div>
             <div className='container'>
@@ -58,7 +67,9 @@ export default function User() {
                             {listUsers.map((item, index) => {
                                 return (
                                     <tr key={index}>
-                                        <td className='text-center'>id</td>
+                                        <td className='text-center'>
+                                            {item.id}
+                                        </td>
                                         <td>{item.email}</td>
                                         <td className='text-center'>
                                             <span className='label label-danger'>
@@ -110,6 +121,32 @@ export default function User() {
                             })}
                         </tbody>
                     </table>
+                </div>
+                <div>
+                    {totalPages > 0 && (
+                        <div className='user-footer'>
+                            <ReactPaginate
+                                breakLabel='...'
+                                nextLabel='next >'
+                                onPageChange={handlePageClick}
+                                pageRangeDisplayed={3}
+                                marginPagesDisplayed={4}
+                                pageCount={totalPages}
+                                previousLabel='< previous'
+                                pageClassName='page-item'
+                                pageLinkClassName='page-link'
+                                previousClassName='page-item'
+                                previousLinkClassName='page-link'
+                                nextClassName='page-item'
+                                nextLinkClassName='page-link'
+                                breakClassName='page-item'
+                                breakLinkClassName='page-link'
+                                containerClassName='pagination'
+                                activeClassName='active'
+                                renderOnZeroPageCount={null}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
             ;

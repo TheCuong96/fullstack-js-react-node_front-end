@@ -29,11 +29,13 @@ const userApi = {
                 return error;
             });
     },
-    fetchAllUser(dataForm) {
+    fetchAllUser(page, limit) {
+        console.log('page', page);
+        console.log('limit', limit);
         return axios
-            .get('http://localhost:3000/api/v1/user/read', {
-                ...dataForm,
-            })
+            .get(
+                `http://localhost:3000/api/v1/user/read?page=${page}&limit=${limit}`
+            )
             .then(function (response) {
                 console.log('response:', response);
                 return response;
