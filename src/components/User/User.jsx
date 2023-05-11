@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import userApi from '../../services/userService';
 import ReactPaginate from 'react-paginate';
+import { toast } from 'react-toastify';
+import ModalDelete from '../ModalDelete/ModalDelete';
 export default function User() {
     const [listUsers, setListUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentLitmit, setCurrentLitmit] = useState(3);
     const [totalPages, setTotalPages] = useState(0);
+    const [isShowModalDelete, setIsShowModalDelete] = useState(false);
+    const [dataModal, setDataModal] = useState({});
     useEffect(() => {
         fetchUser();
     }, [currentPage]);
@@ -22,6 +26,26 @@ export default function User() {
         setCurrentPage(+event.selected + 1);
     };
 
+    const handleDeleteUser = (user) => {
+        setDataModal(user);
+        setIsShowModalDelete(true);
+    };
+    const handleClosePopup = (user) => {
+        setDataModal({});
+        setIsShowModalDelete(false);
+    };
+    const confirmDeleteUser = async () => {
+        let response = await userApi.deleteUser(dataModal);
+        console.log('response', response);
+        console.log('redataModalsponse', dataModal);
+        if (response && +response.data.EC === 0) {
+            toast.success(response.data.EM);
+            await fetchUser();
+            setIsShowModalDelete(false);
+        } else {
+            toast.error(response.data.EM);
+        }
+    };
     return (
         <div>
             <div className='container'>
@@ -98,23 +122,15 @@ export default function User() {
                                                     Edit
                                                 </button>
                                             </form>
-                                            <form
-                                                action='/delete-user'
-                                                method='POST'
+
+                                            <button
+                                                className='btn btn-danger btn-sm'
+                                                onClick={() =>
+                                                    handleDeleteUser(item)
+                                                }
                                             >
-                                                <input
-                                                    type='text'
-                                                    hidden
-                                                    defaultValue='<%= item.id %>'
-                                                    name='userId'
-                                                />
-                                                <button
-                                                    type='submit'
-                                                    className='btn btn-danger btn-sm'
-                                                >
-                                                    Delete
-                                                </button>
-                                            </form>
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 );
@@ -149,7 +165,12 @@ export default function User() {
                     )}
                 </div>
             </div>
-            ;
+            <ModalDelete
+                show={isShowModalDelete}
+                handleClose={handleClosePopup}
+                confirmDeleteUser={confirmDeleteUser}
+                dataModal={dataModal}
+            />
         </div>
     );
 }

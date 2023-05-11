@@ -45,6 +45,20 @@ const userApi = {
                 return error;
             });
     },
+    deleteUser(user) {
+        return axios
+            .delete(`http://localhost:3000/api/v1/user/delete`, {
+                data: { id: user.id },
+            })
+            .then(function (response) {
+                console.log('response:', response);
+                return response;
+            })
+            .catch(function (error) {
+                console.log('error:', error);
+                return error;
+            });
+    },
 };
 
 export default userApi;
