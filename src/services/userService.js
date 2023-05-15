@@ -70,6 +70,19 @@ const userApi = {
         console.log('error:', error)
         return error
       })
+  },
+
+  updateUser(userData) {
+    return axios
+      .put(`http://localhost:3000/api/v1/user/update`, { ...userData })
+      .then(function (response) {
+        console.log('updateUser:', response)
+        return response
+      })
+      .catch(function (error) {
+        console.log('error:', error)
+        return error
+      })
   }
 }
 

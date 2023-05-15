@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useEffect, useState } from 'react'
 import userApi from '../../services/userService'
 import ReactPaginate from 'react-paginate'
@@ -12,13 +13,12 @@ export default function User() {
   const [isShowModalDelete, setIsShowModalDelete] = useState(false)
   const [dataModal, setDataModal] = useState({})
   const [showModalUser, setShowModalUser] = useState(false)
+  const [dataEdit, setDataEdit] = useState({})
 
   useEffect(() => {
     fetchUser()
   }, [currentPage])
   const fetchUser = async () => {
-    console.log('currentPage', currentPage)
-    console.log('currentLitmit', currentLitmit)
     let response = await userApi.fetchAllUser(currentPage, currentLitmit)
     if (response && response.data && +response.data.EC === 0) {
       setTotalPages(response.data.DT.totalPages)
@@ -49,21 +49,32 @@ export default function User() {
       toast.error(response.data.EM)
     }
   }
-  const onHideModalUser = () => {
+  const onHideModalUser = async () => {
     setShowModalUser(false)
+    setDataEdit({})
+    await fetchUser()
   }
-  console.log('listUsers', listUsers)
+
+  const handleEditUser = (item) => {
+    setShowModalUser(true)
+    setDataEdit(item)
+  }
   return (
     <div>
       <div className='container'>
         <h1>List user</h1>
-        <button onClick={() => setShowModalUser(true)}>add user</button>
+        <button onClick={() => setShowModalUser(true)} className='btn btn-info'>
+          add user
+        </button>
         <div className='panel panel-success border-bottom-0 mt-5 border'>
           <table className='table-hover table'>
             <thead>
               <tr>
                 <th style={{ width: '10%' }} className='text-center'>
-                  #
+                  STT
+                </th>
+                <th style={{ width: '10%' }} className='text-center'>
+                  id
                 </th>
                 <th>Email</th>
                 <th style={{ width: '15%' }} className='text-center'>
@@ -85,6 +96,9 @@ export default function User() {
                 listUsers.map((item, index) => {
                   return (
                     <tr key={index}>
+                      <td className='text-center'>
+                        {(currentPage - 1) * currentLitmit + index + 1}
+                      </td>
                       <td className='text-center'>{item.id}</td>
                       <td>{item.email}</td>
                       <td className='text-center'>
@@ -104,6 +118,7 @@ export default function User() {
                         <button
                           type='submit'
                           className='btn btn-warning btn-sm'
+                          onClick={() => handleEditUser(item)}
                         >
                           Edit
                         </button>
@@ -154,7 +169,11 @@ export default function User() {
         confirmDeleteUser={confirmDeleteUser}
         dataModal={dataModal}
       />
-      <ModalUser onHide={onHideModalUser} show={showModalUser} />
+      <ModalUser
+        onHide={onHideModalUser}
+        show={showModalUser}
+        dataEdit={dataEdit}
+      />
     </div>
   )
 }

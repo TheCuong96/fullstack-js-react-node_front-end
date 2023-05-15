@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable react/prop-types */
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Col from 'react-bootstrap/Col'
@@ -24,9 +26,10 @@ const formDefault = {
   password: '',
   address: '',
   sex: '',
-  group: ''
+  groupId: ''
 }
 export default function ModalUser(props) {
+  const { dataEdit } = props
   const [form, setForm] = useState(formDefault)
   const [validInput, setValidInput] = useState(validInputDefault)
   // const [userData, setUserData] = useState();
@@ -34,11 +37,18 @@ export default function ModalUser(props) {
   useEffect(() => {
     getGroup()
   }, [])
+
+  const existDataEdit = Object.keys(dataEdit).length === 0
+  useEffect(() => {
+    if (!existDataEdit) {
+      setForm({ ...dataEdit, groupId: dataEdit.Group ? dataEdit.Group.id : '' })
+    }
+  }, [dataEdit])
   const getGroup = async () => {
     let res = await userApi.fetchGroup()
     if (res && res.data && res.data.EC === 0) {
       setUserGroup(res.data.DT)
-      setForm({ ...form, group: res.data.DT[0].id })
+      setForm({ ...form, groupId: res.data.DT[0].id })
     } else {
       toast.error(res.data.EM)
     }
@@ -68,22 +78,35 @@ export default function ModalUser(props) {
   const handleConfirmUser = async (e) => {
     let check = checkValidateForm()
     if (check === true) {
-      let res = await userApi.createNewUser({
-        ...form,
-        groupId: form['group']
-      })
-      console.log('res ', res)
+      let res = existDataEdit
+        ? await userApi.createNewUser({
+            ...form,
+            groupId: form['groupId']
+          })
+        : await userApi.updateUser({
+            ...form,
+            groupId: form['groupId']
+          })
       if (res.data && res.data.EC === 0) {
         props.onHide()
-        setForm({ ...formDefault, group: userGroup[0].id })
+        setForm({ ...formDefault, groupId: userGroup[0].id })
       } else {
-        toast.error(`Error create user...`)
+        toast.error(res.data.EM)
+        let _validInputs = _.cloneDeep()
+        _validInputs[res.data.DT] = false
+        setValidInput(_validInputs)
       }
     }
   }
+
+  const handleCloseModalUser = async (e) => {
+    props.onHide()
+    setForm(formDefault)
+    setValidInput(validInputDefault)
+  }
   return (
-    <Modal show={props.show} onHide={props.onHide} size='xl' centered>
-      <h1>title</h1>
+    <Modal show={props.show} onHide={handleCloseModalUser} size='xl' centered>
+      <h1>{existDataEdit ? 'Create User' : 'Update User'}</h1>
       <Form>
         <Row className='mb-3'>
           <Form.Group as={Col} controlId='formGridEmail'>
@@ -92,7 +115,10 @@ export default function ModalUser(props) {
               type='email'
               name='email'
               placeholder='email'
+              value={form.email}
               onChange={handleOnchange}
+              disabled={!existDataEdit}
+              className={`${validInput.email || 'is-invalid'} `}
             />
           </Form.Group>
 
@@ -102,7 +128,9 @@ export default function ModalUser(props) {
               type='Phone'
               name='phone'
               placeholder='Phone'
+              value={form.phone}
               onChange={handleOnchange}
+              disabled={!existDataEdit}
             />
           </Form.Group>
         </Row>
@@ -113,25 +141,29 @@ export default function ModalUser(props) {
               type='text'
               name='username'
               placeholder='username'
+              value={form.username}
               onChange={handleOnchange}
             />
           </Form.Group>
-
-          <Form.Group as={Col} controlId='formGridPassword'>
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type='password'
-              name='password'
-              placeholder='Password'
-              onChange={handleOnchange}
-            />
-          </Form.Group>
+          {existDataEdit && (
+            <Form.Group as={Col} controlId='formGridPassword'>
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type='password'
+                name='password'
+                placeholder='Password'
+                value={form.password}
+                onChange={handleOnchange}
+              />
+            </Form.Group>
+          )}
         </Row>
         <Form.Group className='mb-3' controlId='formGridAddress1'>
           <Form.Label>Address</Form.Label>
           <Form.Control
             placeholder='Address'
             name='address'
+            value={form.address}
             onChange={handleOnchange}
           />
         </Form.Group>
@@ -142,6 +174,7 @@ export default function ModalUser(props) {
             <Form.Select
               defaultValue='Choose...'
               name='sex'
+              value={form.sex}
               onChange={handleOnchange}
             >
               <option>Female</option>
@@ -153,7 +186,8 @@ export default function ModalUser(props) {
             <Form.Label>Group</Form.Label>
             <Form.Select
               defaultValue='Choose...'
-              name='group'
+              name='groupId'
+              value={form.groupId}
               onChange={handleOnchange}
             >
               {userGroup.length > 0 ? (
@@ -172,11 +206,11 @@ export default function ModalUser(props) {
         </Row>
       </Form>
       <Modal.Footer>
-        <Button variant='secondary' onClick={props.onHide}>
+        <Button variant='secondary' onClick={handleCloseModalUser}>
           Close
         </Button>
         <Button variant='primary' onClick={handleConfirmUser}>
-          Save
+          {existDataEdit ? 'Save' : 'Update'}
         </Button>
       </Modal.Footer>
     </Modal>
