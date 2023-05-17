@@ -1,9 +1,9 @@
-import axios from 'axios'
+import axios from './axios'
 
 const userApi = {
   registerUser(dataForm) {
     return axios
-      .post('http://localhost:3000/api/v1/register', {
+      .post('/api/v1/register', {
         ...dataForm
       })
       .then(function (response) {
@@ -15,7 +15,7 @@ const userApi = {
   },
   loginUser(dataForm) {
     return axios
-      .post('http://localhost:3000/api/v1/login', {
+      .post('/api/v1/login', {
         ...dataForm
       })
       .then(function (response) {
@@ -27,7 +27,7 @@ const userApi = {
   },
   fetchAllUser(page, limit) {
     return axios
-      .get(`http://localhost:3000/api/v1/user/read?page=${page}&limit=${limit}`)
+      .get(`/api/v1/user/read?page=${page}&limit=${limit}`)
       .then(function (response) {
         return response
       })
@@ -37,7 +37,7 @@ const userApi = {
   },
   deleteUser(user) {
     return axios
-      .delete(`http://localhost:3000/api/v1/user/delete`, {
+      .delete(`/api/v1/user/delete`, {
         data: { id: user.id }
       })
       .then(function (response) {
@@ -50,7 +50,7 @@ const userApi = {
 
   fetchGroup() {
     return axios
-      .get(`http://localhost:3000/api/v1/group/read`)
+      .get(`/api/v1/group/read`)
       .then(function (response) {
         return response
       })
@@ -61,7 +61,7 @@ const userApi = {
 
   createNewUser(userData) {
     return axios
-      .post(`http://localhost:3000/api/v1/user/create`, { ...userData })
+      .post(`/api/v1/user/create`, { ...userData })
       .then(function (response) {
         console.log('createNewUser:', response)
         return response
@@ -74,7 +74,7 @@ const userApi = {
 
   updateUser(userData) {
     return axios
-      .put(`http://localhost:3000/api/v1/user/update`, { ...userData })
+      .put(`/api/v1/user/update`, { ...userData })
       .then(function (response) {
         console.log('updateUser:', response)
         return response

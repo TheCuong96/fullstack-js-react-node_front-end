@@ -20,9 +20,9 @@ export default function User() {
   }, [currentPage])
   const fetchUser = async () => {
     let response = await userApi.fetchAllUser(currentPage, currentLitmit)
-    if (response && response.data && +response.data.EC === 0) {
-      setTotalPages(response.data.DT.totalPages)
-      setListUsers(response.data.DT.user)
+    if (response && response && +response.EC === 0) {
+      setTotalPages(response.DT.totalPages)
+      setListUsers(response.DT.user)
     }
   }
 
@@ -41,12 +41,12 @@ export default function User() {
   const confirmDeleteUser = async () => {
     let response = await userApi.deleteUser(dataModal)
     console.log('redataModalsponse', dataModal)
-    if (response && +response.data.EC === 0) {
-      toast.success(response.data.EM)
+    if (response && +response.EC === 0) {
+      toast.success(response.EM)
       await fetchUser()
       setIsShowModalDelete(false)
     } else {
-      toast.error(response.data.EM)
+      toast.error(response.EM)
     }
   }
   const onHideModalUser = async () => {

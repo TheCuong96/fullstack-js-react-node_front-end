@@ -46,11 +46,11 @@ export default function ModalUser(props) {
   }, [dataEdit])
   const getGroup = async () => {
     let res = await userApi.fetchGroup()
-    if (res && res.data && res.data.EC === 0) {
-      setUserGroup(res.data.DT)
-      setForm({ ...form, groupId: res.data.DT[0].id })
+    if (res && res && res.EC === 0) {
+      setUserGroup(res.DT)
+      setForm({ ...form, groupId: res.DT[0].id })
     } else {
-      toast.error(res.data.EM)
+      toast.error(res.EM)
     }
   }
   const handleOnchange = (e) => {
@@ -87,13 +87,13 @@ export default function ModalUser(props) {
             ...form,
             groupId: form['groupId']
           })
-      if (res.data && res.data.EC === 0) {
+      if (res && res.EC === 0) {
         props.onHide()
         setForm({ ...formDefault, groupId: userGroup[0].id })
       } else {
-        toast.error(res.data.EM)
+        toast.error(res.EM)
         let _validInputs = _.cloneDeep()
-        _validInputs[res.data.DT] = false
+        _validInputs[res.DT] = false
         setValidInput(_validInputs)
       }
     }
